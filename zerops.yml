@@ -59,7 +59,8 @@ zerops:
         # v2: idempotent emailpass bind. The first key could mark success
         # after `medusa user` hit "already exists" with no working password.
         - zsc execOnce createInitialSuperadmin_v2 -- yarn createInitialSuperadmin
-        - zsc execOnce seedInitialData -- yarn seedInitialData
+        # v2: official catalog seed omitted collections; home rails need them.
+        - zsc execOnce seedInitialData_v2 -- yarn seedInitialData
         - yarn setInitialPublishableKey
         - yarn reloadNextstoreEnv
       ports:

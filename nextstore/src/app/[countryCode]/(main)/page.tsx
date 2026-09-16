@@ -24,7 +24,7 @@ export default async function Home(props: {
     fields: "id, handle, title",
   })
 
-  if (!collections || !region) {
+  if (!region) {
     return null
   }
 
@@ -33,7 +33,7 @@ export default async function Home(props: {
       <Hero />
       <div className="py-12">
         <ul className="flex flex-col gap-x-6">
-          <FeaturedProducts collections={collections} region={region} />
+          <FeaturedProducts collections={collections ?? []} region={region} />
         </ul>
       </div>
     </>

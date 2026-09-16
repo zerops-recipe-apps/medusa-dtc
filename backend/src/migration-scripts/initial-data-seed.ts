@@ -341,11 +341,26 @@ export default async function initial_data_seed({
   const sizeOption = productOptionsResult.find((o) => o.title === "Size")!;
   const colorOption = productOptionsResult.find((o) => o.title === "Color")!;
 
+  // Home page rails read /store/collections — categories alone do not show.
+  const {
+    result: [featuredCollection],
+  } = await createCollectionsWorkflow(container).run({
+    input: {
+      collections: [
+        {
+          title: "Latest Drops",
+          handle: "latest-drops",
+        },
+      ],
+    },
+  });
+
   await createProductsWorkflow(container).run({
     input: {
       products: [
         {
           title: "Medusa T-Shirt",
+          collection_id: featuredCollection.id,
           category_ids: [
             categoryResult.find((cat) => cat.name === "Shirts")!.id,
           ],
@@ -527,6 +542,7 @@ export default async function initial_data_seed({
         },
         {
           title: "Medusa Sweatshirt",
+          collection_id: featuredCollection.id,
           category_ids: [
             categoryResult.find((cat) => cat.name === "Sweatshirts")!.id,
           ],
@@ -623,6 +639,7 @@ export default async function initial_data_seed({
         },
         {
           title: "Medusa Sweatpants",
+          collection_id: featuredCollection.id,
           category_ids: [
             categoryResult.find((cat) => cat.name === "Pants")!.id,
           ],
@@ -719,6 +736,7 @@ export default async function initial_data_seed({
         },
         {
           title: "Medusa Shorts",
+          collection_id: featuredCollection.id,
           category_ids: [
             categoryResult.find((cat) => cat.name === "Merch")!.id,
           ],
