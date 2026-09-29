@@ -2,7 +2,7 @@
 
 Medusa v2.21 DTC API and admin at repository root.
 
-Storefront: [medusa-dtc-nextstore](https://github.com/zerops-recipe-apps/medusa-dtc-nextstore).
+Storefront: [medusa-dtc-frontend](https://github.com/zerops-recipe-apps/medusa-dtc-frontend).
 
 ## Local dev
 
