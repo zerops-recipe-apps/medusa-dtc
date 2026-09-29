@@ -1,0 +1,37 @@
+# recipe-output.yaml
+recipe_created: medusa-dtc
+files_created:
+  - recipes/medusa-dtc/README.md
+  - recipes/medusa-dtc/research.md
+  - recipes/medusa-dtc/recipe-output.yaml
+  - recipes/medusa-dtc/0 — AI Agent/import.yaml
+  - recipes/medusa-dtc/0 — AI Agent/README.md
+  - recipes/medusa-dtc/1 — Remote (CDE)/import.yaml
+  - recipes/medusa-dtc/1 — Remote (CDE)/README.md
+  - recipes/medusa-dtc/2 — Local/import.yaml
+  - recipes/medusa-dtc/2 — Local/README.md
+  - recipes/medusa-dtc/3 — Stage/import.yaml
+  - recipes/medusa-dtc/3 — Stage/README.md
+  - recipes/medusa-dtc/4 — Small Production/import.yaml
+  - recipes/medusa-dtc/4 — Small Production/README.md
+  - recipes/medusa-dtc/5 — Highly-available Production/import.yaml
+  - recipes/medusa-dtc/5 — Highly-available Production/README.md
+apps_created: []
+apps_existing:
+  - https://github.com/zerops-recipe-apps/medusa-dtc
+  - https://github.com/zerops-recipe-apps/medusa-dtc-frontend
+strapi_fields:
+  recipe_name: Medusa DTC
+  slug: medusa-dtc
+  recipe_source: medusa-dtc
+  categories: [framework]
+  languages_frameworks: [Medusa, Next.js, TypeScript, Node.js]
+  internal_type: example
+ready_for_testing: true
+notes:
+  - Split repos: medusa-dtc + medusa-dtc-frontend. DTC retail seed (not B2B). Meilisearch + Mailpit on dev envs.
+  - Setups `dev` / `prod` only. Agent/Remote *dev workspaces + *stage on prod.
+  - Canonical imports in zeropsio/recipes/medusa-dtc; optional .zerops-recipe/ copy in app repo.
+  - nodejs@24. Project RELOAD_SECRET + vault CHANNEL_PUBLISHABLE_KEY.
+  - Small Production: 1 GB Medusa verticalAutoscaling (admin OOM at platform default).
+  - Humans: Strapi medusa-dtc; apps medusa-dtc (backend) + medusa-dtc-frontend (storefront); refresh GitHub cache.

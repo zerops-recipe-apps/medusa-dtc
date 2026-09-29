@@ -1,91 +1,84 @@
-# Medusa DTC
+# Medusa DTC Recipe App
 
 <!-- #ZEROPS_EXTRACT_START:intro# -->
-Medusa v2.21 DTC commerce backend, admin, and Next.js 15 App Router storefront in one monorepo for [Zerops](https://zerops.io). PostgreSQL, Valkey, and MinIO ship with the project; first deploy migrates, seeds a retail catalog, and writes a publishable key the storefront reads at runtime.
+[Medusa](https://medusajs.com) v2.21 direct-to-consumer API and admin at the repository root — retail catalog, cart, and checkout without B2B company modules. Pairs with [medusa-dtc-frontend](https://github.com/zerops-recipe-apps/medusa-dtc-frontend). Deploy with PostgreSQL, Valkey, Meilisearch, and MinIO via the [Medusa DTC recipe](https://app.zerops.io/recipes/medusa-dtc) on [Zerops](https://zerops.io).
 <!-- #ZEROPS_EXTRACT_END:intro# -->
 
-⬇️ **Deploy on Zerops**
+Used within [Medusa DTC recipe](https://app.zerops.io/recipes/medusa-dtc) for the Zerops platform.
+
+⬇️ **Full recipe page and deploy with one-click**
 
 [![Deploy on Zerops](https://github.com/zeropsio/recipe-shared-assets/blob/main/deploy-button/light/deploy-button.svg)](https://app.zerops.io/recipes/medusa-dtc?environment=small-production)
 
-Canonical import YAMLs live in [`zeropsio/recipes/medusa-dtc`](https://github.com/zeropsio/recipes/tree/main/medusa-dtc). This repo keeps a matching copy under [`.zerops-recipe/`](.zerops-recipe/) for standalone paste-import.
+![cover](https://github.com/zeropsio/recipe-shared-assets/blob/main/covers/svg/cover-nextjs.svg)
 
-## Repository layout
+## Repositories
 
-| Path | Service | Port | Package manager |
-| --- | --- | --- | --- |
-| [`backend/`](backend/) | Medusa API + admin (`zeropsSetup: medusa`) | `9000` | Yarn 1 |
-| [`nextstore/`](nextstore/) | Next.js SSR DTC storefront (`zeropsSetup: nextstore`) | `8000` | Yarn 3 (Berry) |
+| Repo | Role |
+| --- | --- |
+| [medusa-dtc](https://github.com/zerops-recipe-apps/medusa-dtc) (this repo) | Medusa backend + admin (`/app`) |
+| [medusa-dtc-frontend](https://github.com/zerops-recipe-apps/medusa-dtc-frontend) | Optional Next.js 15 DTC storefront |
 
-Root [`zerops.yml`](zerops.yml) defines both setups. Each Zerops service clones this repo and runs the matching setup (`buildCommands` use `cd backend` / `cd nextstore`).
+Skip `nextstore*` services in the recipe import for backend-only projects. Storefront Zerops services keep the `nextstore` hostname; the Git repository is `medusa-dtc-frontend`.
 
-Based on the official [Medusa DTC starter](https://github.com/medusajs/dtc-starter).
-
-## Requirements
-
-- Node.js **24+** on Zerops (`nodejs@24`)
-- **Backend:** Node `^20.19.0 || >=22.12.0`, Yarn 1.22, PostgreSQL, Valkey
-- **Storefront:** Node `>=24.0.0`, Yarn 3.2.3 via Corepack
+Recipe imports: [`zeropsio/recipes/medusa-dtc`](https://github.com/zeropsio/recipes/tree/main/medusa-dtc) and [`.zerops-recipe/`](.zerops-recipe/).
 
 ## Local development
 
-### Backend
-
 ```bash
-cd backend
+yarn install
 cp .env.template .env
-yarn
-yarn dev
+yarn dev                # http://localhost:9000 — admin at /app
 ```
 
-Admin: [http://localhost:9000/app](http://localhost:9000/app) — default `admin@example.com` / `supersecret` from `.env.template`.
-
-### Storefront
+Optional storefront:
 
 ```bash
-cd nextstore
+cd ../medusa-dtc-frontend
 cp .env.template .env.local
-yarn
-yarn dev
+yarn install && yarn dev   # http://localhost:8000
 ```
 
-Set `NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000` and a publishable key from Admin → Settings → API Key Management.
-
-Storefront: [http://localhost:8000](http://localhost:8000)
-
-## Admin login (Zerops)
-
-| Where | URL |
-| --- | --- |
-| Admin UI | `{API_URL}/app` on the **medusa** service (port 9000); `{API_URL}/` redirects there |
-| Storefront | `{APP_URL}` on **nextstore** (port 8000) |
-
-Credentials: **medusa** service secrets `SUPERADMIN_EMAIL` (default `admin@example.com`) and `SUPERADMIN_PASSWORD` (generated on import). Use those only on `{API_URL}/app` — they are not storefront customer logins.
-
-## Publishable key boot order
-
-Deploy **medusa** before **nextstore** on first import (medusa has higher `priority`). Medusa init writes `CHANNEL_PUBLISHABLE_KEY`, then POSTs nextstore `/api/internal/reload-env` using project `RELOAD_SECRET` so the storefront process respawns with a resolved `pk_` key.
-
-Need help? Join the [Zerops Discord](https://discord.gg/zeropsio).
-
-<!-- #ZEROPS_EXTRACT_START:integration-guide# -->
 ## Integration Guide
 
-### 1. Monorepo `zerops.yml`
+<!-- #ZEROPS_EXTRACT_START:integration-guide# -->
 
-[`zerops.yml`](zerops.yml) at the repo root defines two setups:
+### 1. Adding `zerops.yml`
 
-- **`medusa`** — builds in `backend/`, deploys `.medusa/server` flattened to `/var/www`, port 9000, init migrate/seed/publishable key/reload nextstore
-- **`nextstore`** — builds in `nextstore/` with Corepack + Yarn Berry, port 8000, readiness `/api/health`
+Same layout as [medusa-b2b](https://github.com/zerops-recipe-apps/medusa-b2b): Medusa at repo root, `prod` ships `.medusa/server`, `dev` uses `deployFiles: ./` for SSH workspaces.
 
-Both services use `buildFromGit: https://github.com/zerops-recipe-apps/medusa-dtc`; Zerops selects the setup via `zeropsSetup` in [`zeropsio/recipes/medusa-dtc`](https://github.com/zeropsio/recipes/tree/main/medusa-dtc).
+```yaml
+zerops:
+  - setup: prod
+    build:
+      base: nodejs@24
+      buildCommands:
+        - yarn
+        - yarn build
+        - cp -f package.json tsconfig.json .medusa/server/
+      deployFiles:
+        - .medusa/server/~
+        - ~node_modules
+    run:
+      initCommands:
+        - zsc execOnce ${appVersionId}_migration -- yarn migrate
+        - zsc execOnce ${appVersionId}_links -- yarn syncLinks
+        - zsc execOnce createInitialSuperadmin_v2 -- yarn createInitialSuperadmin
+        - zsc execOnce seedInitialData_v2 -- yarn seedInitialData_v2
+        - yarn setInitialPublishableKey
+        - yarn reloadNextstoreEnv
+        - zsc execOnce addInitialSearchDocuments -- yarn addInitialSearchDocuments
+      ports:
+        - port: 9000
+          httpSupport: true
 
-Map project value store keys in each setup (`APP_URL`, `API_URL`) — never put framework keys on import **service** blocks.
+  - setup: dev
+    build:
+      deployFiles: ./
+      buildCommands:
+        - yarn
+```
 
-### 2. Key configuration points
+Project **vault** holds Stripe and SMTP secrets; `zerops.yml` only maps service hostnames and computed URLs. No Turbo/Nx — Yarn 1 at the root.
 
-- Medusa: Redis modules when `REDIS_URL` is set, MinIO file module when `MINIO_*` is set
-- Nextstore: `NEXT_PUBLIC_*` baked at build time; instrumentation respawns until publishable key is `pk_*`
-- Do not switch nextstore to `type: static` / `output: 'export'`
-- Keep `admin.path` at `/app`
 <!-- #ZEROPS_EXTRACT_END:integration-guide# -->
