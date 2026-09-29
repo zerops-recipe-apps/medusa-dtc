@@ -1,19 +1,10 @@
 # medusa-dtc
 
-Medusa v2.21 DTC **backend** on Zerops (`nodejs@24`). Storefront: [medusa-dtc-nextstore](https://github.com/zerops-recipe-apps/medusa-dtc-nextstore).
+Medusa v2.21 DTC API + admin at repo root. Storefront: [medusa-dtc-nextstore](https://github.com/zerops-recipe-apps/medusa-dtc-nextstore).
 
-## Layout
+- Zerops: `dev` / `prod`; imports in [`.zerops-recipe/`](.zerops-recipe/) and [`zeropsio/recipes/medusa-dtc`](https://github.com/zeropsio/recipes/tree/main/medusa-dtc)
+- Pin `@medusajs/*` to **2.21.0**
 
-| Path | Zerops | Port |
-| --- | --- | --- |
-| `backend/` | `dev` / `prod` | 9000 |
-| `nextstore/` | local compose only | 8000 |
-
-Root [`zerops.yml`](zerops.yml) — only `dev` and `prod`. Imports: [`.zerops-recipe/`](.zerops-recipe/) and [`zeropsio/recipes/medusa-dtc`](https://github.com/zeropsio/recipes/tree/main/medusa-dtc).
-
-## Notes
-
-- Pin `@medusajs/*` to **2.21.0**.
-- Project **vault**; no identity env passthrough in `zerops.yml`.
-- No Turbo/Nx — two package managers, no shared graph.
-- `dev` deploys `./`; `prod` flattens `backend/.medusa/server`.
+```bash
+yarn dev
+```
