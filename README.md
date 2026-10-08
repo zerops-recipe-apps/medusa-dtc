@@ -71,9 +71,11 @@ zerops:
       ports:
         - port: 9000
           httpSupport: true
+      start: yarn start
 
   - setup: dev
     build:
+      base: nodejs@24
       deployFiles: ./
       buildCommands:
         - yarn
